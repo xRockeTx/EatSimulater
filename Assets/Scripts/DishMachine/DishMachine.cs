@@ -13,10 +13,11 @@ public class DishMachine : MonoBehaviour
     public DishMachineUI DishMachineUI;
     [HideInInspector] public Worker Worker;
 
-    public void TakeDish()
+    public void TakeDish(Worker worker)
     {
+        Worker = worker;
         State = DishMachineState.InTake;
-        DishMachineUI.StartCoroutine(DishMachineUI.TakeDish(TakeTime,Worker));
+        DishMachineUI.StartCoroutine(DishMachineUI.TakeDish(TakeTime,worker));
     }
 
 }

@@ -27,23 +27,21 @@ public class StorageUI : MonoBehaviour
     {
         DishImage.gameObject.SetActive(false);
         TakeOrderPanel.SetActive(true);
-
         TakeProgres.fillAmount = 1;
         float t = time;
-
         while (t > 0)
         {
             t -= time / 20;
             TakeProgres.fillAmount = t / time;
             yield return new WaitForSeconds(time / 20);
         }
-
         Storage.Amount--;
         Storage.OrderMissions.Add(new Mission(Storage.Variety));
         Amount.text = Storage.Amount.ToString();
-        Storage.State = StorageState.Free;
-        worker.TakeStorageDish(Data.DishVariety);
 
+
+        Storage.State = StorageState.Free;
+        worker.TakeStorageDish();
         TakeOrderPanel.SetActive(false);
         DishImage.gameObject.SetActive(true);
     }

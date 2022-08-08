@@ -35,18 +35,13 @@ public class Table : MonoBehaviour
     public void OpenOrder(Order order,Customer customer)
     {
         State = TableState.InWaitingOrder;
+
         Order = order;
         Customer = customer;
-
         for (int i = 0; i < order.Amount; i++)
         {
             OrderMissions.Add(new Mission(order.Data.DishVariety));
         }
-    }
-
-    public void TakeOrderResult()
-    {
-        Worker.StartCoroutine(Worker.FindWork());
     }
 }
 

@@ -25,10 +25,10 @@ public class Storage : MonoBehaviour
             OrderMissions.Add(new Mission(Variety));
         }
     }
-    public void PickUpDish()
+    public void PickUpDish(Worker worker)
     {
         State = StorageState.InTake;
-        StorageUI.StartCoroutine(StorageUI.TakeDish(TakeTime,Worker));
+        StorageUI.StartCoroutine(StorageUI.TakeDish(TakeTime,worker));
     }
     public void TakeDish()
     {

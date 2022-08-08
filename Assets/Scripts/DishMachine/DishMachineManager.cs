@@ -17,15 +17,16 @@ public class DishMachineManager : MonoBehaviour
         }
         return false;
     }
-    public int GetFreeMachines(DishVariety variety)
+    public DishMachine GetFreeMachines(DishVariety variety)
     {
         foreach (DishMachine machine in Machines)
         {
             if (machine.Variety == variety && machine.State == DishMachineState.Free && machine.gameObject.activeSelf)
             {
-                return Machines.IndexOf(machine);
+                machine.State = DishMachineState.InWaiting;
+                return machine;
             }
         }
-        return 0;
+        return new DishMachine();
     }
 }

@@ -37,7 +37,7 @@ public class DishMachineUI : MonoBehaviour
         }
 
         DishMachine.State = DishMachineState.Free;
-        worker.TakeDish(Data.DishVariety);
+        worker.TakeTableDish();
         TakeOrderPanel.SetActive(false);
         DishImage.gameObject.SetActive(true);
     }

@@ -19,6 +19,7 @@ public class CustomerMove : MonoBehaviour
                 }
             yield return new WaitForSeconds(Time.deltaTime/2);
         }
+
         switch (state)
         {
             case CustomerState.TakeOrder:  

@@ -25,22 +25,26 @@ public class TableUI : MonoBehaviour
         TakeProgres.fillAmount = 1;
         time *= order.Amount;
         float t = time;
+
         Table.State = TableState.TakeOrder;
+
         while (t > 0)
         {
             t -= time / 20;
             TakeProgres.fillAmount = t / time;
             yield return new WaitForSeconds(time / 20);
         }
-        WaitOrder(order);
-        Table.TakeOrderResult();
         TakeOrderPanel.SetActive(false);
+        Table.Worker.StartCoroutine(Table.Worker.FindWork());
+        WaitOrder(order);
+
     }
     public void WaitOrder(Order order)
     {
         DishPanel.SetActive(true);
         DishImage.color = order.Data.DishColor;
         DishAmount.text = order.Amount.ToString();
+
         Table.State = TableState.WaitDelivery;
     }
     public void DeliveryOrder()

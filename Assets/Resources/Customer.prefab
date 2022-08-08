@@ -96,6 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Move: {fileID: 7830922374752156536}
+  Spawner: {fileID: 0}
   Table: {fileID: 0}
   Order:
     Data: {fileID: 0}
@@ -112,5 +113,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3979c1a8d3454645a96ccd40c3443ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 2
+  MoveSpeed: 8
   Customer: {fileID: 4856279360882029661}

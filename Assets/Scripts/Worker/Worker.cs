@@ -4,233 +4,195 @@ using UnityEngine;
 
 public class Worker : MonoBehaviour
 {
+    public WorkerMove Move;
+
     [HideInInspector] public TableManager TableManager;
-    [HideInInspector] public DishMachineManager MachineManager;  
-    [HideInInspector] public StorageManager StorageManager;
+    public DishMachineManager MachineManager;
+    public StorageManager StorageManager;
     [HideInInspector] public Table Table;
     [HideInInspector] public DishMachine Machine;
-    [HideInInspector] public Storage Storage;
-    [HideInInspector] public Transform StorageStepPosition1;
-    [HideInInspector] public Transform StorageStepPosition2;
-    public WorkerMove Move;
+    public Storage Storage;
+
+    public Transform Pos1,Pos2;
+
     [HideInInspector] public Mission Mission;
+
     [HideInInspector] public DishVariety Hand;
     public WorkerState State=WorkerState.None;
-    public WorkerPositions Position = WorkerPositions.DeliveryOrder;
+    public WorkerPositions Position = WorkerPositions.None;
 
-    public void TakeData(TableManager tableManager, DishMachineManager machineManager, StorageManager storageManager,Transform storageStepPosition1, Transform storageStepPosition2)
+    public void TakeData(TableManager tableManager, DishMachineManager machineManager, StorageManager storageManager, Transform pos1, Transform pos2)
     {
         TableManager = tableManager;
         MachineManager = machineManager;
         StorageManager = storageManager;
-        StorageStepPosition1 = storageStepPosition1;
-        StorageStepPosition2 = storageStepPosition2;
+        Pos1 = pos1;
+        Pos2 = pos2;
         StartCoroutine(FindWork());
     }
     public IEnumerator FindWork()
     {
         while (true)
         {
-            foreach (Table table in TableManager.Tables)
+            if (FindWaitTable())
             {
-                if (table.State == TableState.InWaitingOrder)
-                {
-                    FindOrderTableWork(table);
-                    yield break;
-                }
-                else if(table.State == TableState.WaitDelivery && table.OrderMissions.Count > 0)
-                {
-                    if (FindFreeDish(table))
-                    {
-                        yield break;
-                    }
-                }
+                yield break;
             }
-            foreach (Storage storage in StorageManager.Storages)
+            else if (FindOrderMission())
             {
-                if (storage.gameObject.activeSelf &&storage.OrderMissions.Count > 0&&storage.Amount<storage.MaxAmount)
-                {
-                    if (FindFreeStorage(storage))
-                    {
-                        break;
-                    }
-                }
+                yield break;
             }
-            
-            yield return new WaitForSeconds(0.1f);
-        }
-    }
 
-    public void FindOrderTableWork(Table table)
-    {
-        Table = table;
-        table.State = TableState.InWaitingTakeOrder;
-        List<Transform> pos = new List<Transform>();
-        if (Position == WorkerPositions.None || Position == WorkerPositions.DeliveryOrder)
-        {
-            pos.Add(Table.WorkerPosition);
+
+            yield return new WaitForSeconds(.1f);
         }
-        else
-        {
-            pos.Add(StorageStepPosition2);
-            pos.Add(StorageStepPosition1);
-            pos.Add(Table.WorkerPosition);
-        }
-        State = WorkerState.TakeOrder;
-        Move.StartCoroutine(Move.NewMove(State, pos));
     }
-    public bool FindFreeDish(Table table)
+    public bool FindWaitTable()
     {
         bool res = false;
-        Table = table;
-        Mission = Table.OrderMissions[0];
-        List<Transform> pos = new List<Transform>();
-        if (StorageManager.HaveFreeStorage(Mission.Variety))
+        foreach(Table table in TableManager.Tables)
         {
-            res = true;
-            Table.OrderMissions.Remove(Mission);
-            Table.WorkerDoMissions.Add(Mission);
-
-            Storage = StorageManager.Storages[StorageManager.GetFreeMachines(Table.Order.Data.DishVariety)];
-            Storage.State = StorageState.InWaiting;
-
-            Move.Positions = new List<Transform>();
-            if (State == WorkerState.None || State == WorkerState.TakeOrder)
+            if(table.State == TableState.InWaitingOrder&&table.gameObject.activeSelf)
             {
-                pos.Add(Storage.TakePosition);
-            }
-            else if (State == WorkerState.TakeStorageOrder)
-            {
-                pos.Add(StorageStepPosition2);
-                pos.Add(StorageStepPosition1);
-                pos.Add(Storage.TakePosition);
-            }
-            State = WorkerState.TakeStorageOrder;
-            Move.StartCoroutine(Move.NewMove(State,pos));
-        }
-        else if (MachineManager.HaveFreeMachines(Mission.Variety))
-        {
-            res = true;
-            Table.OrderMissions.Remove(Mission);
-            Table.WorkerDoMissions.Add(Mission);
+                Table = table;
+                Table.State = TableState.InWaitingTakeOrder;
 
-            Machine = MachineManager.Machines[MachineManager.GetFreeMachines(Table.Order.Data.DishVariety)];
-            Machine.State = DishMachineState.InWaiting;
+                List<Transform> pos = new List<Transform>();
 
-            Move.Positions = new List<Transform>();
-            if (Position == WorkerPositions.None || Position == WorkerPositions.DeliveryOrder)
-            {
-                pos.Add(StorageStepPosition1);
-                pos.Add(StorageStepPosition2);
-                pos.Add(Machine.StepGoPosition);
-                pos.Add(Machine.StepPosition);
-                pos.Add(Machine.TakePosition);
+                pos.Add(Table.WorkerPosition);
+
+                State = WorkerState.TakeOrder;
+                Move.StartCoroutine(Move.Move(pos,State));
+                res = true;
+                break;
             }
-            else if (Position == WorkerPositions.DeliveryStorageDish)
-            {
-                pos.Add(Machine.StepGoPosition);
-                pos.Add(Machine.StepPosition);
-                pos.Add(Machine.TakePosition);
-            }
-            State = WorkerState.SendDishReq;
-            Move.StartCoroutine(Move.NewMove(State,pos));
         }
         return res;
     }
-    public bool FindFreeStorage(Storage storage)
+    public bool FindOrderMission()
     {
         bool res = false;
-        Storage = storage;
-        Mission = storage.OrderMissions[0];
+        foreach (Table table in TableManager.Tables)
+        {
+            if (table.State == TableState.WaitDelivery&&table.OrderMissions.Count>0)
+            {
+                Mission = table.OrderMissions[0];
+                table.OrderMissions.Remove(Mission);
+
+                if (StorageManager.HaveFreeStorage(Mission.Variety))
+                {
+                    Storage = StorageManager.GetFreeStorage(Mission.Variety);
+
+                    Table = table;
+                    Table.State = TableState.WaitDelivery;
+
+                    List<Transform> pos = new List<Transform>();
+
+                    if (Position == WorkerPositions.None || Position == WorkerPositions.DeliveryOrder)
+                    {
+                        pos.Add(Storage.TakePosition);
+                    }
+                    else
+                    {
+                        pos.Add(Pos2);
+                        pos.Add(Pos1);
+                        pos.Add(Storage.TakePosition);
+                    }
+
+                    State = WorkerState.WentToStorage;
+                    Move.StartCoroutine(Move.Move(pos, State));
+                    res = true;
+                    break;
+                }
+                if (MachineManager.HaveFreeMachines(Mission.Variety))
+                {
+                    Machine = MachineManager.GetFreeMachines(Mission.Variety);
+
+                    Table = table;
+                    Table.State = TableState.WaitDelivery;
+
+                    List<Transform> pos = new List<Transform>();
+
+                    if (Position == WorkerPositions.None|| Position == WorkerPositions.DeliveryOrder)
+                    {
+                        pos.Add(Pos1);
+                        pos.Add(Pos2);
+                        pos.Add(Machine.StepGoPosition);
+                        pos.Add(Machine.StepPosition);
+                        pos.Add(Machine.TakePosition);
+                    }
+                    else
+                    {
+                        pos.Add(Machine.StepGoPosition);
+                        pos.Add(Machine.StepPosition);
+                        pos.Add(Machine.TakePosition);
+                    }
+
+                    State = WorkerState.WentToMachine;
+                    Move.StartCoroutine(Move.Move(pos, State));
+                    res = true;
+                    break;
+                }
+            }
+        }
+        return res;
+    }
+    public bool FindStorageMission()
+    {
+        bool res = false;
         if (MachineManager.HaveFreeMachines(Mission.Variety))
         {
-            res = true;
-            Storage.OrderMissions.Remove(Mission);
-            Storage.WorkerDoMissions.Add(Mission);
-
-            Machine = MachineManager.Machines[MachineManager.GetFreeMachines(Mission.Variety)];
+            Machine = MachineManager.GetFreeMachines(Mission.Variety);
             Machine.State = DishMachineState.InWaiting;
+            List<Transform> pos = new List<Transform>();
 
-            List < Transform > pos = new List<Transform>();
-            if (Position == WorkerPositions.None || Position == WorkerPositions.DeliveryOrder)
-            {
-                pos.Add(StorageStepPosition1);
-                pos.Add(StorageStepPosition2);
-                pos.Add(Machine.StepGoPosition);
-                pos.Add(Machine.StepPosition);
-                pos.Add(Machine.TakePosition);
-            }
-            else if (Position == WorkerPositions.DeliveryStorageDish)
-            {
-                pos.Add(Machine.StepGoPosition);
-                pos.Add(Machine.StepPosition);
-                pos.Add(Machine.TakePosition);
-            }
-            State = WorkerState.TakeStorageOrder;
-            Move.StartCoroutine(Move.NewMove(State,pos));
+            pos.Add(Machine.StepGoPosition);
+            pos.Add(Machine.StepPosition);
+            pos.Add(Machine.TakePosition);
+
+            State = WorkerState.WentToMachine;
+            Move.StartCoroutine(Move.Move(pos, State));
+            res = true;
         }
         return res;
     }
 
-    public void SendDishReq()
-    {
-        Machine.Worker = this;
-        Machine.TakeDish();
-    }
-    public void SendStorageDishReq()
-    {
-        Storage.Worker = this;
-        Storage.PickUpDish();
-    }
-    public void DeliveryStorageDish()
-    {
-        Storage.TakeDish();
-        Storage = null;
-        State = WorkerState.None;
-        Position = WorkerPositions.DeliveryStorageDish;
-        StartCoroutine(FindWork());
-    }
-
-    public void TakeOrder()
+    public void TakeTableOrder()
     {
         Table.TakeOrder(this);
-    }     // +
+    }
+    public void TakeMachine()
+    {
+        Machine.TakeDish(this);
+    }
+    public void TakeTableDish()
+    {
+        List<Transform> pos = new List<Transform>();
+
+        pos.Add(Machine.StepPosition);
+        pos.Add(Machine.StepGoPosition);
+        pos.Add(Table.WorkerPosition);
+
+        State = WorkerState.DeliveryDish;
+        Move.StartCoroutine(Move.Move(pos, State));
+    }
     public void DeliveryDish()
     {
         Table.DeliveryOrder();
-        State = WorkerState.TakeOrder;
-        Position = WorkerPositions.DeliveryOrder;
         StartCoroutine(FindWork());
-    }  // +
-    public void TakeStorageDish(DishVariety variety)
-    {
-        Hand = variety;
-        List<Transform> pos = new List<Transform>();
-        pos.Add(Table.WorkerPosition);
-        StartCoroutine(Move.NewMove(WorkerState.DeliveryDish,pos));
     }
-    public void TakeDish(DishVariety variety)
+
+    public void TakeStorage()
     {
-        Hand = variety;
-        if (State==WorkerState.TakeStorageOrder)
-        {
-            List<Transform> pos = new List<Transform>();
-            pos.Add(Machine.StepPosition);
-            pos.Add(Machine.StepGoPosition);
-            pos.Add(Storage.PickUpPosition);
-            Position = WorkerPositions.DeliveryStorageDish;
-            StartCoroutine(Move.NewMove(WorkerState.DeliveryStorageDish, pos));
-        }
-        else
-        {
-            List<Transform> pos = new List<Transform>();
-            pos.Add(Machine.StepPosition);
-            pos.Add(Machine.StepGoPosition);
-            pos.Add(StorageStepPosition2);
-            pos.Add(StorageStepPosition1);
-            pos.Add(Table.WorkerPosition);
-            Position = WorkerPositions.DeliveryOrder;
-            StartCoroutine(Move.NewMove(WorkerState.DeliveryDish, pos));
-        }
+        Storage.PickUpDish(this);
+    }
+    public void TakeStorageDish()
+    {
+        List<Transform> pos = new List<Transform>();
+
+        pos.Add(Table.WorkerPosition);
+
+        State = WorkerState.DeliveryDish;
+        Move.StartCoroutine(Move.Move(pos, State));
     }
 }

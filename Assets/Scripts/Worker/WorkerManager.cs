@@ -23,7 +23,7 @@ public class WorkerManager : MonoBehaviour
     {
         GameObject g = Instantiate(Worker,transform);
         Worker worker = g.GetComponent<Worker>();
-        worker.TakeData(TableManager, DishMachineManager,StorageManager,Pos1,Pos2);
+        worker.TakeData(TableManager,DishMachineManager,StorageManager,Pos1,Pos2);
         Workers.Add(worker);
     }
 }

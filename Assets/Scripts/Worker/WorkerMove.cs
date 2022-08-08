@@ -8,7 +8,7 @@ public class WorkerMove : MonoBehaviour
     [HideInInspector] public List<Transform> Positions = new List<Transform>();
     [HideInInspector] public Worker Worker;
 
-    public IEnumerator NewMove(WorkerState state,List<Transform> positions)
+    public IEnumerator Move(List<Transform> positions,WorkerState state)
     {
         int id = 0;
         while (id < positions.Count)
@@ -26,19 +26,16 @@ public class WorkerMove : MonoBehaviour
             case WorkerState.None:
                 break;
             case WorkerState.TakeOrder:
-                Worker.TakeOrder();
+                Worker.TakeTableOrder();
                 break;
-            case WorkerState.SendDishReq:
-                Worker.SendDishReq();
+            case WorkerState.WentToMachine:
+                Worker.TakeMachine();
                 break;
             case WorkerState.DeliveryDish:
                 Worker.DeliveryDish();
                 break;
-            case WorkerState.TakeStorageOrder:
-                Worker.TakeDish(Worker.Mission.Variety);
-                break;
-            case WorkerState.DeliveryStorageDish:
-                Worker.DeliveryStorageDish();
+            case WorkerState.WentToStorage:
+                Worker.TakeStorage();
                 break;
         }
     }
@@ -48,14 +45,14 @@ public enum WorkerState
 {
     None,
     TakeOrder,
-    SendDishReq,
+    WentToMachine,
     DeliveryDish,
-    TakeStorageOrder,
+    WentToStorage,
     DeliveryStorageDish
 }
 public enum WorkerPositions
 {
     None,
-    DeliveryStorageDish,
-    DeliveryOrder
+    DeliveryOrder,
+    DeliveryStorage
 }

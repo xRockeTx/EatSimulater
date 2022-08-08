@@ -95,14 +95,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75ef58117e69ff34fa9568a54cbe3482, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Move: {fileID: 10957656452336185}
   TableManager: {fileID: 0}
   MachineManager: {fileID: 0}
+  StorageManager: {fileID: 0}
   Table: {fileID: 0}
   Machine: {fileID: 0}
-  Move: {fileID: 10957656452336185}
+  Storage: {fileID: 0}
+  Pos1: {fileID: 0}
+  Pos2: {fileID: 0}
   Mission:
     Variety: 0
   Hand: 0
+  State: 0
+  Position: 0
 --- !u!114 &10957656452336185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,6 +121,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e7db2a1a3e4b454da692453b710249e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 3
+  MoveSpeed: 8
   Positions: []
   Worker: {fileID: 10957656452336186}
