@@ -13,5 +13,9 @@ public enum DishVariety
     Milshake,
     ChocolateShake,
     Donate,
-    Maffin
+    Maffin,
+    Fry,
+    Burger,
+    Coffee,
+    Lemonade
 }

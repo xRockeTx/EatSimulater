@@ -10,7 +10,7 @@ public class DishMachineManager : MonoBehaviour
     {
         foreach(DishMachine machine in Machines)
         {
-            if (machine.Variety == variety&&machine.State==DishMachineState.Free)
+            if (machine.Variety == variety&&machine.State==DishMachineState.Free&&machine.gameObject.activeSelf)
             {
                 return true;
             }
@@ -21,7 +21,7 @@ public class DishMachineManager : MonoBehaviour
     {
         foreach (DishMachine machine in Machines)
         {
-            if (machine.Variety == variety && machine.State == DishMachineState.Free)
+            if (machine.Variety == variety && machine.State == DishMachineState.Free && machine.gameObject.activeSelf)
             {
                 return Machines.IndexOf(machine);
             }

@@ -5,12 +5,14 @@ using UnityEngine;
 public class CustomerStreetSpawner : MonoBehaviour
 {
     public LoadDishData Data;
+    public List<DishData> CanOrder;
+    public DishData StarterDish;
     public GameObject Customer;
     public TableManager TableManager;
     private void Start()
     {
+        CanOrder.Add(StarterDish);
         StartCoroutine(SpawnCustomer());
-
     }
     private IEnumerator SpawnCustomer()
     {
@@ -18,12 +20,12 @@ public class CustomerStreetSpawner : MonoBehaviour
         {
             foreach (Table table in TableManager.Tables)
             {
-                if (table.State == TableState.Free)
+                if (table.State == TableState.Free && table.gameObject.activeSelf)
                 {
                     table.State = TableState.InWaiting;
                     GameObject customer = Instantiate(Customer, transform);
-                    customer.GetComponent<Customer>().TakeData(new Order(Data.Dishes), table, this);
-                    yield return new WaitForSeconds(0.5f);
+                    customer.GetComponent<Customer>().TakeData(new Order(CanOrder), table, this);
+                    yield return new WaitForSeconds(1f);
                 }
             }
             yield return new WaitForSeconds(2f);
@@ -33,6 +35,6 @@ public class CustomerStreetSpawner : MonoBehaviour
     {
         TableManager.Tables[id].State = TableState.InWaiting;
         customer.transform.position = this.transform.position;
-        customer.GetComponent<Customer>().TakeData(new Order(Data.Dishes), TableManager.Tables[id],this);
+        customer.GetComponent<Customer>().TakeData(new Order(CanOrder), TableManager.Tables[id],this);
     }
 }

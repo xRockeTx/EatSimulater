@@ -36,11 +36,11 @@ public class Order
     public DishData Data = new DishData();
     public int Amount;
 
-    public Order(DishData[] Data)
+    public Order(List<DishData> Data)
     {
         System.Random r = new System.Random();
         Amount = r.Next(1, 4);
-        this.Data = Data[r.Next(0, Data.Length)];
+        this.Data = Data[r.Next(0, Data.Count)];
     }
 }
 public enum CustomerState

@@ -8,31 +8,54 @@ public class WorkerMove : MonoBehaviour
     [HideInInspector] public List<Transform> Positions = new List<Transform>();
     [HideInInspector] public Worker Worker;
 
-    public IEnumerator Move(TableState state)
+    public IEnumerator NewMove(WorkerState state,List<Transform> positions)
     {
         int id = 0;
-        while (id < Positions.Count)
+        while (id < positions.Count)
         {
-            transform.Translate((Positions[id].position - transform.position).normalized * MoveSpeed * Time.deltaTime, Space.World);
-            if (Vector3.Distance(transform.position, Positions[id].position) < 0.25)
+            transform.Translate((positions[id].position - transform.position).normalized * MoveSpeed * Time.deltaTime, Space.World);
+            if (Vector3.Distance(transform.position, positions[id].position) < 0.25)
             {
                 id++;
             }
             yield return new WaitForSeconds(Time.deltaTime / 2);
         }
-        Positions = new List<Transform>();
+
         switch (state)
         {
-            case TableState.InWaitingOrder:
+            case WorkerState.None:
+                break;
+            case WorkerState.TakeOrder:
                 Worker.TakeOrder();
                 break;
-            case TableState.WaitDelivery:
+            case WorkerState.SendDishReq:
                 Worker.SendDishReq();
                 break;
-            case TableState.TakeDish:
+            case WorkerState.DeliveryDish:
                 Worker.DeliveryDish();
                 break;
-
+            case WorkerState.TakeStorageOrder:
+                Worker.TakeDish(Worker.Mission.Variety);
+                break;
+            case WorkerState.DeliveryStorageDish:
+                Worker.DeliveryStorageDish();
+                break;
         }
     }
+}
+
+public enum WorkerState
+{
+    None,
+    TakeOrder,
+    SendDishReq,
+    DeliveryDish,
+    TakeStorageOrder,
+    DeliveryStorageDish
+}
+public enum WorkerPositions
+{
+    None,
+    DeliveryStorageDish,
+    DeliveryOrder
 }

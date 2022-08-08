@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class DishMachine : MonoBehaviour
 {
-    public DishVariety Variety;
+    [HideInInspector] public DishVariety Variety;
     public float TakeTime;
     [HideInInspector] public DishMachineState State;
     public Transform TakePosition;
+    public Transform StepPosition;
+    public Transform StepGoPosition;
     public DishMachineUI DishMachineUI;
     [HideInInspector] public Worker Worker;
 

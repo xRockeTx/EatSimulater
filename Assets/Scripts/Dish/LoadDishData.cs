@@ -5,7 +5,7 @@ using UnityEngine;
 public class LoadDishData : MonoBehaviour
 {
     public DishData[] Dishes;
-    private void Start()
+    private void Awake()
     {
         Dishes = Resources.LoadAll<DishData>("Dishes");
     }

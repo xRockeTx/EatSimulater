@@ -13,7 +13,7 @@ public class Table : MonoBehaviour
     public Transform OutPosition;
     public Transform WorkerPosition;
     public TableUI TableUI;
-    [HideInInspector] public Order Order = null;
+    public Order Order = null;
     [HideInInspector] public List<Mission> OrderMissions = new List<Mission>();
     [HideInInspector] public List<Mission> WorkerDoMissions = new List<Mission>();
     [HideInInspector] public List<Mission> CompleteMissions = new List<Mission>();
@@ -47,24 +47,6 @@ public class Table : MonoBehaviour
     public void TakeOrderResult()
     {
         Worker.StartCoroutine(Worker.FindWork());
-        switch (State)
-        {
-            case TableState.Free:
-                break;
-            case TableState.InWaiting:
-                break;
-            case TableState.InWaitingOrder:
-                break;
-            case TableState.InWaitingTakeOrder:
-                break;
-            case TableState.TakeOrder:
-                break;
-            case TableState.WaitDelivery:
-                if (Order.Amount == 0)
-                {
-                }
-                break;
-        }
     }
 }
 

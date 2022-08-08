@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DishMachineUI : MonoBehaviour
+public class StorageUI : MonoBehaviour
 {
     public Image DishImage;
     public Text TakeTime;
+    public Text Amount;
     public GameObject TakeOrderPanel;
     public Image TakeProgres;
 
-    public DishMachine DishMachine;
+    public Storage Storage;
     [HideInInspector] public DishData Data;
 
     public void Start()
     {
-        DishMachine.Variety = Data.DishVariety;
-        TakeTime.text = DishMachine.TakeTime.ToString();
+        Storage.Variety = Data.DishVariety;
+        TakeTime.text = Storage.TakeTime.ToString();
         DishImage.color = Data.DishColor;
+        Amount.text = Storage.Amount.ToString();
 
         TakeOrderPanel.SetActive(false);
     }
-    public IEnumerator TakeDish(float time,Worker worker)
+    public IEnumerator TakeDish(float time, Worker worker)
     {
         DishImage.gameObject.SetActive(false);
         TakeOrderPanel.SetActive(true);
@@ -36,9 +38,19 @@ public class DishMachineUI : MonoBehaviour
             yield return new WaitForSeconds(time / 20);
         }
 
-        DishMachine.State = DishMachineState.Free;
-        worker.TakeDish(Data.DishVariety);
+        Storage.Amount--;
+        Storage.OrderMissions.Add(new Mission(Storage.Variety));
+        Amount.text = Storage.Amount.ToString();
+        Storage.State = StorageState.Free;
+        worker.TakeStorageDish(Data.DishVariety);
+
         TakeOrderPanel.SetActive(false);
         DishImage.gameObject.SetActive(true);
+    }
+    public void PickUp()
+    {
+        Storage.Amount++;
+        Storage.OrderMissions.Remove(new Mission(Storage.Variety));
+        Amount.text = Storage.Amount.ToString();
     }
 }

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5adc654458fa05f4893c51a74d6aedb9, type: 3}
-  m_Name: MilkShake
+  m_Name: Fry
   m_EditorClassIdentifier: 
-  DishVariety: 1
-  DishColor: {r: 0.745283, g: 0.745283, b: 0.745283, a: 1}
+  DishVariety: 5
+  DishColor: {r: 0.990566, g: 0.6910803, b: 0.2840868, a: 0.95686275}
